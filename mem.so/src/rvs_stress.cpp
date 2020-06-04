@@ -13,11 +13,17 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstring>
+#include <mutex>
 
 #define VERSION_STRING "3.4"
 
+#include "include/rvs_memworker.h"
 #include "include/Stream.h"
 #include "include/HIPStream.h"
+#include "include/rvs_memtest.h"
+#include "include/rvsloglp.h"
+
+extern rvs_memdata   memdata;
 
 // Default size of 2^25
 unsigned int ARRAY_SIZE = 33554432;
@@ -50,38 +56,49 @@ void callBabel() {
 template <typename T>
 void run_stress()
 {
-  std::streamsize ss = std::cout.precision();
+  std::string   msg;
 
   if (!output_as_csv)
   {
-    std::cout << "Running kernels " << num_times << " times" << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Running kernels " + " block id :" + std::to_string(num_times);
+    rvs::lp::Log(msg, rvs::loginfo);
 
-    if (sizeof(T) == sizeof(float))
-      std::cout << "Precision: float" << std::endl;
-    else
-      std::cout << "Precision: double" << std::endl;
+
+    if (sizeof(T) == sizeof(float)) {
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Precision: float " + " \n";
+      rvs::lp::Log(msg, rvs::loginfo);
+    }
+    else {
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Precision: double " + " \n";
+      rvs::lp::Log(msg, rvs::loginfo);
+    }
 
 
     if (mibibytes)
     {
       // MiB = 2^20
-      std::cout << std::setprecision(1) << std::fixed
-                << "Array size: " << ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0) << " MiB"
-                << " (=" << ARRAY_SIZE*sizeof(T)*pow(2.0, -30.0) << " GiB)" << std::endl;
-      std::cout << "Total size: " << 3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0) << " MiB"
-                << " (=" << 3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -30.0) << " GiB)" << std::endl;
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Array size: " + std::to_string(ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0)) + " MiB" 
+              + " (=" + std::to_string(ARRAY_SIZE*sizeof(T)*pow(2.0, -30.0)) + " GiB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
+
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Total size: " 
+             + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0)) + " MiB" +
+                  " (=" + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -30.0)) + " GiB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
+
     }
     else
     {
       // MB = 10^6
-      std::cout << std::setprecision(1) << std::fixed
-                << "Array size: " << ARRAY_SIZE*sizeof(T)*1.0E-6 << " MB"
-                << " (=" << ARRAY_SIZE*sizeof(T)*1.0E-9 << " GB)" << std::endl;
-      std::cout << "Total size: " << 3.0*ARRAY_SIZE*sizeof(T)*1.0E-6 << " MB"
-                << " (=" << 3.0*ARRAY_SIZE*sizeof(T)*1.0E-9 << " GB)" << std::endl;
-    }
-    std::cout.precision(ss);
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Array size: " + 
+              std::to_string(ARRAY_SIZE*sizeof(T)*1.0E-6) + " MB" +
+              + " (=" + std::to_string(ARRAY_SIZE*sizeof(T)*1.0E-9) + " GB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
 
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + "Total size: " + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*1.0E-6) + " MB"
+                + " (=" + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*1.0E-9) + " GB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
+    }
   }
 
   // Create host vectors
@@ -147,29 +164,27 @@ void run_stress()
   // Display timing results
   if (output_as_csv)
   {
-    std::cout
-      << "function" << csv_separator
-      << "num_times" << csv_separator
-      << "n_elements" << csv_separator
-      << "sizeof" << csv_separator
-      << ((mibibytes) ? "max_mibytes_per_sec" : "max_mbytes_per_sec") << csv_separator
-      << "min_runtime" << csv_separator
-      << "max_runtime" << csv_separator
-      << "avg_runtime" << std::endl;
-  }
-  else
-  {
-    std::cout
-      << std::left << std::setw(12) << "Function"
-      << std::left << std::setw(12) << ((mibibytes) ? "MiBytes/sec" : "MBytes/sec")
-      << std::left << std::setw(12) << "Min (sec)"
-      << std::left << std::setw(12) << "Max"
-      << std::left << std::setw(12) << "Average"
-      << std::endl
-      << std::fixed;
-  }
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + 
+      + "function" + csv_separator
+      + "num_times" + csv_separator
+      + "n_elements" + csv_separator
+      + "sizeof" + csv_separator
+      + ((mibibytes) ? "max_mibytes_per_sec" : "max_mbytes_per_sec") + csv_separator
+      + "min_runtime" + csv_separator
+      + "max_runtime" + csv_separator
+      + "avg_runtime" + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
+  }else{
 
-
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      +  "Function"
+      +  ((mibibytes) ? "MiBytes/sec" : "MBytes/sec")
+      +  "Min (sec)"
+      +  "Max"
+      +  "Average"
+      + "\n"; 
+    rvs::lp::Log(msg, rvs::loginfo);
+  }
 
   std::string labels[5] = {"Copy", "Mul", "Add", "Triad", "Dot"};
   size_t sizes[5] = {
@@ -191,27 +206,28 @@ void run_stress()
     // Display results
     if (output_as_csv)
     {
-      std::cout
-        << labels[i] << csv_separator
-        << num_times << csv_separator
-        << ARRAY_SIZE << csv_separator
-        << sizeof(T) << csv_separator
-        << ((mibibytes) ? pow(2.0, -20.0) : 1.0E-6) * sizes[i] / (*minmax.first) << csv_separator
-        << *minmax.first << csv_separator
-        << *minmax.second << csv_separator
-        << average
-        << std::endl;
+       std::string t =  labels[i];
+       msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + t
+        + std::to_string(num_times) + csv_separator
+        + std::to_string(ARRAY_SIZE) + csv_separator
+        + std::to_string(sizeof(T)) + csv_separator
+        + std::to_string(((mibibytes) ? pow(2.0, -20.0) : 1.0E-6) * sizes[i] / (*minmax.first)) + csv_separator
+        + std::to_string(*minmax.first) + csv_separator
+        + std::to_string(*minmax.second) + csv_separator
+        + std::to_string(average)
+        + "\n";
+       rvs::lp::Log(msg, rvs::loginfo);
     }
     else
     {
-      std::cout
-        << std::left << std::setw(12) << labels[i]
-        << std::left << std::setw(12) << std::setprecision(3) << 
-          ((mibibytes) ? pow(2.0, -20.0) : 1.0E-6) * sizes[i] / (*minmax.first)
-        << std::left << std::setw(12) << std::setprecision(5) << *minmax.first
-        << std::left << std::setw(12) << std::setprecision(5) << *minmax.second
-        << std::left << std::setw(12) << std::setprecision(5) << average
-        << std::endl;
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+        + labels[i]
+        + std::to_string(((mibibytes) ? pow(2.0, -20.0) : 1.0E-6) * sizes[i] / (*minmax.first))
+        + std::to_string(*minmax.first)
+        + std::to_string(*minmax.second)
+        + std::to_string(average)
+        + "\n";
+       rvs::lp::Log(msg, rvs::loginfo);
     }
   }
 
@@ -222,35 +238,44 @@ void run_stress()
 template <typename T>
 void run_triad()
 {
+  std::string msg;
 
   if (!output_as_csv)
   {
-    std::cout << "Running triad " << num_times << " times" << std::endl;
-    std::cout << "Number of elements: " << ARRAY_SIZE << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Running triad " + std::to_string(num_times) + " times" + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
 
-    if (sizeof(T) == sizeof(float))
-      std::cout << "Precision: float" << std::endl;
-    else
-      std::cout << "Precision: double" << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Number of elements " + std::to_string(ARRAY_SIZE) + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
 
-    std::streamsize ss = std::cout.precision();
+    if (sizeof(T) == sizeof(float)) {
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Precision: float " + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
+    }
+    else {
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Precision: double " + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
+    }
+
     if (mibibytes)
     {
-      std::cout << std::setprecision(1) << std::fixed
-        << "Array size: " << ARRAY_SIZE*sizeof(T)*pow(2.0, -10.0) << " KiB"
-        << " (=" << ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0) << " MiB)" << std::endl;
-      std::cout << "Total size: " << 3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -10.0) << " KiB"
-        << " (=" << 3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0) << " MiB)" << std::endl;
+       msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " + " Array size: " 
+         + std::to_string(ARRAY_SIZE*sizeof(T)*pow(2.0, -10.0)) + " KiB" 
+         + " (=" + std::to_string(ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0)) + " MiB)" + "\n";
+       rvs::lp::Log(msg, rvs::loginfo);
+
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Total size: " 
+        + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -10.0)) + " KiB"
+        + " (=" + std::to_string(3.0*ARRAY_SIZE*sizeof(T)*pow(2.0, -20.0)) + " MiB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
     }
     else
     {
-      std::cout << std::setprecision(1) << std::fixed
-        << "Array size: " << ARRAY_SIZE*sizeof(T)*1.0E-3 << " KB"
-        << " (=" << ARRAY_SIZE*sizeof(T)*1.0E-6 << " MB)" << std::endl;
-      std::cout << "Total size: " << 3.0*ARRAY_SIZE*sizeof(T)*1.0E-3 << " KB"
-        << " (=" << 3.0*ARRAY_SIZE*sizeof(T)*1.0E-6 << " MB)" << std::endl;
+      msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " +  "Array size: " 
+        + std::to_string(ARRAY_SIZE*sizeof(T)*1.0E-3) + " KB"
+        + " (=" + std::to_string(ARRAY_SIZE*sizeof(T)*1.0E-6) + " MB)" + "\n";
+      rvs::lp::Log(msg, rvs::loginfo);
     }
-    std::cout.precision(ss);
   }
 
   // Create host vectors
@@ -289,33 +314,35 @@ void run_triad()
 
   if (output_as_csv)
   {
-    std::cout
-      << "function" << csv_separator
-      << "num_times" << csv_separator
-      << "n_elements" << csv_separator
-      << "sizeof" << csv_separator
-      << ((mibibytes) ? "gibytes_per_sec" : "gbytes_per_sec") << csv_separator
-      << "runtime"
-      << std::endl;
-    std::cout
-      << "Triad" << csv_separator
-      << num_times << csv_separator
-      << ARRAY_SIZE << csv_separator
-      << sizeof(T) << csv_separator
-      << bandwidth << csv_separator
-      << runtime
-      << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "function" + csv_separator
+      + "num_times" + csv_separator
+      + "n_elements" + csv_separator
+      + "sizeof" + csv_separator
+      + ((mibibytes) ? "gibytes_per_sec" : "gbytes_per_sec") + csv_separator
+      + "runtime"
+      + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
+
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "Triad" + csv_separator
+      + std::to_string(num_times) + csv_separator
+      + std::to_string(ARRAY_SIZE) + csv_separator
+      + std::to_string(sizeof(T)) + csv_separator
+      + std::to_string(bandwidth) + csv_separator
+      + std::to_string(runtime)
+      + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
   }
   else
   {
-    std::cout
-      << "--------------------------------"
-      << std::endl << std::fixed
-      << "Runtime (seconds): " << std::left << std::setprecision(5)
-      << runtime << std::endl
-      << "Bandwidth (" << ((mibibytes) ? "GiB/s" : "GB/s") << "):  "
-      << std::left << std::setprecision(3)
-      << bandwidth << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "--------------------------------"
+      + "Runtime (seconds): " 
+      + std::to_string(runtime) + "\n"
+      + "Bandwidth (" + ((mibibytes) ? "GiB/s" : "GB/s") + "):  "
+      + std::to_string(bandwidth) + "\n";
+    rvs::lp::Log(msg, rvs::loginfo);
   }
 
   delete stream;
@@ -329,6 +356,7 @@ void check_solution(const unsigned int ntimes, std::vector<T>& a, std::vector<T>
   T goldB = startB;
   T goldC = startC;
   T goldSum = 0.0;
+  std::string  msg;
 
   const T scalar = startScalar;
 
@@ -359,25 +387,31 @@ void check_solution(const unsigned int ntimes, std::vector<T>& a, std::vector<T>
   double epsi = std::numeric_limits<T>::epsilon() * 100.0;
 
   if (errA > epsi)
-    std::cerr
-      << "Validation failed on a[]. Average error " << errA
-      << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "Validation failed on a[]. Average error " + std::to_string(errA)
+      + "\n";
+    rvs::lp::Log(msg, rvs::logerror);
+
   if (errB > epsi)
-    std::cerr
-      << "Validation failed on b[]. Average error " << errB
-      << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "Validation failed on b[]. Average error " + std::to_string(errB)
+      + "\n";
+    rvs::lp::Log(msg, rvs::logerror);
+
   if (errC > epsi)
-    std::cerr
-      << "Validation failed on c[]. Average error " << errC
-      << std::endl;
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "Validation failed on c[]. Average error " + std::to_string(errC)
+      + "\n";
+    rvs::lp::Log(msg, rvs::logerror);
+
   // Check sum to 8 decimal places
   if (!triad_only && errSum > 1.0E-8)
-    std::cerr
-      << "Validation failed on sum. Error " << errSum
-      << std::endl << std::setprecision(15)
-      << "Sum was " << sum << " but should be " << goldSum
-      << std::endl;
-
+    msg = "[" + memdata.action_name + "] " + MODULE_NAME + " " 
+      + "Validation failed on sum. Error " + std::to_string(errSum)
+      + "\n"  
+      + "Sum was " + std::to_string(sum) + " but should be " + std::to_string(goldSum)
+      + "\n";
+    rvs::lp::Log(msg, rvs::logerror);
 }
 
 int parseUInt(const char *str, unsigned int *output)

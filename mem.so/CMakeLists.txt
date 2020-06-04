@@ -148,7 +148,8 @@ link_directories(${RVS_LIB_DIR} ${ROCR_LIB_DIR} ${ROCBLAS_LIB_DIR})
 set (PROJECT_LINK_LIBS rvslibrt rvslib libpthread.so libpci.so libm.so)
 
 ## define source files
-set(SOURCES src/rvs_module.cpp src/action.cpp src/rvs_memtest.cpp src/rvs_memworker.cpp)
+set(SOURCES src/rvs_module.cpp src/action.cpp src/rvs_memtest.cpp
+  src/rvs_memworker.cpp src/rvs_stress.cpp src/rvs_stream.cpp)
 
 ## define target
 add_library( ${RVS_TARGET} SHARED ${SOURCES})

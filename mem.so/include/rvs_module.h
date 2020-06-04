@@ -22,8 +22,8 @@
  * SOFTWARE.
  *
  *******************************************************************************/
-#ifndef GST_SO_INCLUDE_RVS_MODULE_H_
-#define GST_SO_INCLUDE_RVS_MODULE_H_
+#ifndef RVS_SO_INCLUDE_RVS_MODULE_H_
+#define RVS_SO_INCLUDE_RVS_MODULE_H_
 
 #include "include/rvsliblog.h"
 

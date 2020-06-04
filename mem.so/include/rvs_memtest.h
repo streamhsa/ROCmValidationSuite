@@ -162,6 +162,7 @@ void test7(char* ptr, unsigned int tot_num_blocks);
 void test8(char* ptr, unsigned int tot_num_blocks);
 void test9(char* ptr, unsigned int tot_num_blocks);
 void test10(char* ptr, unsigned int tot_num_blocks);
+void test11(char* ptr, unsigned int tot_num_blocks);
 
 void rvs_memtest();
 void run_tests(char* ptr, unsigned int tot_num_blocks);

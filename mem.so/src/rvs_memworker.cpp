@@ -35,6 +35,8 @@
 #include "include/rvs_memtest.h"
 #include "include/rvsloglp.h"
 
+#include "include/Stream.h"
+
 using std::string;
 
 extern void allocate_small_mem(void);
@@ -58,43 +60,10 @@ rvs_memtest_t rvs_memtests[]={
     {test8, (char*)"Test8 [Modulo 20, random pattern]",	1},
     {test9, (char*)"Test9 [Bit fade test]",			0},
     {test10, (char*)"Test10 [Memory stress test]",		1},
+    {test11, (char*)"Test11 [Babel memory stress test]",		1},
 };
 
 
-#if 0
-void MemWorker::allocate_small_mem(void)
-{
-    //Initialize memory
-    HIP_CHECK(hipMalloc((void**)&ptCntOfError, sizeof(unsigned int) )); 
-    HIP_CHECK(hipMemset(ptCntOfError, 0, sizeof(unsigned int) )); 
-
-    HIP_CHECK(hipMalloc((void**)&ptFailedAdress, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-    HIP_CHECK(hipMemset(ptFailedAdress, 0, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-
-    HIP_CHECK(hipMalloc((void**)&ptExpectedValue, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-    HIP_CHECK(hipMemset(ptExpectedValue, 0, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-
-    HIP_CHECK(hipMalloc((void**)&ptCurrentValue, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-    HIP_CHECK(hipMemset(ptCurrentValue, 0, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-
-    HIP_CHECK(hipMalloc((void**)&ptValueOfSecondRead, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-    HIP_CHECK(hipMemset(ptValueOfSecondRead, 0, sizeof(unsigned long) * MAX_ERR_RECORD_COUNT));
-}
-
-void MemWorker::free_small_mem(void)
-{
-    //Initialize memory
-    hipFree((void*)&ptCntOfError);
-
-    hipFree((void*)ptFailedAdress);
-
-    hipFree((void*)ptExpectedValue);
-
-    hipFree((void*)ptCurrentValue);
-
-    hipFree((void*)ptValueOfSecondRead);
-}
-#endif
 
 void MemWorker::Initialization(void)
 {
@@ -130,7 +99,6 @@ void MemWorker::run_tests(char* ptr, unsigned int tot_num_blocks)
                    std::to_string(gpu_id) + " " + " Memory tests : " + std::to_string(i) + " tests complete \n";
      rvs::lp::Log(msg, rvs::loginfo);
 }
-
 
 /**
  * @brief performs the stress test on the given GPU

@@ -86,9 +86,10 @@ void MemWorker::run_tests(char* ptr, unsigned int tot_num_blocks)
 
     Initialization();
 
-    for (i = 0; i < DIM(rvs_memtests); i++){
+    //for (i = 0; i < DIM(rvs_memtests); i++){
+    {
           gettimeofday(&t0, NULL);
-          rvs_memtests[i].func(ptr, tot_num_blocks);
+          rvs_memtests[11].func(ptr, tot_num_blocks);
           gettimeofday(&t1, NULL);
           msg = "[" + action_name + "] " + MODULE_NAME + " " +
                    std::to_string(gpu_id) + " To run memtest time taken: " + std::to_string(TDIFF(t1, t0)) + " seconds with " + std::to_string(i) + " passes \n";
@@ -99,6 +100,8 @@ void MemWorker::run_tests(char* ptr, unsigned int tot_num_blocks)
                    std::to_string(gpu_id) + " " + " Memory tests : " + std::to_string(i) + " tests complete \n";
      rvs::lp::Log(msg, rvs::loginfo);
 }
+
+extern void callBabel();
 
 /**
  * @brief performs the stress test on the given GPU
@@ -163,6 +166,9 @@ void MemWorker::run() {
 
     rvs::lp::Log(msg, rvs::logtrace);
 
+   callBabel();
+
+#if 0
     do{
         tot_num_blocks -= MEM_NUM_SAVE_BLOCKS ; //magic number 16 MB
 
@@ -218,6 +224,7 @@ void MemWorker::run() {
     rvs::lp::Log(msg, rvs::logtrace);
 
     run_tests(ptr, tot_num_blocks);
+#endif
 
     free_small_mem();
 }

@@ -97,6 +97,7 @@ bool mem_action::do_mem_stress_test(map<int, uint16_t> mem_gpus_device_index) {
         // all worker instances have the same json settings
         MemWorker::set_use_json(bjson);
 
+#if 0
         msg = "[" + action_name + "] " + MODULE_NAME + " " +
             " " + " The following memory tests will run";
         rvs::lp::Log(msg, rvs::logresults);
@@ -106,6 +107,7 @@ bool mem_action::do_mem_stress_test(map<int, uint16_t> mem_gpus_device_index) {
             rvs::lp::Log(msg, rvs::logresults);
         }
 
+#endif
         msg = "[" + action_name + "] " + MODULE_NAME + " " +
             " " + " Starting all workers"; 
         rvs::lp::Log(msg, rvs::logtrace);

@@ -1686,10 +1686,7 @@ void free_small_mem(void)
     hipFree((void*)ptValueOfSecondRead);
 }
 
-extern void callBabel();
-
 void test11(char* ptr, unsigned int tot_num_blocks)
 {
-   callBabel(); 
 }
  

@@ -101,7 +101,7 @@ void MemWorker::run_tests(char* ptr, unsigned int tot_num_blocks)
      rvs::lp::Log(msg, rvs::loginfo);
 }
 
-extern void callBabel();
+extern void callBabel(int );
 
 /**
  * @brief performs the stress test on the given GPU
@@ -166,7 +166,7 @@ void MemWorker::run() {
 
     rvs::lp::Log(msg, rvs::logtrace);
 
-   callBabel();
+   callBabel(deviceId);
 
 #if 0
     do{

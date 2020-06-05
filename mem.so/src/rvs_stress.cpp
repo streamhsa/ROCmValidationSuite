@@ -34,30 +34,34 @@ bool triad_only = false;
 bool output_as_csv = false;
 bool mibibytes = false;
 std::string csv_separator = ",";
+extern unsigned int numberIterations;
 
 template <typename T>
 void check_solution(const unsigned int ntimes, std::vector<T>& a, std::vector<T>& b, std::vector<T>& c, T& sum);
 
 template <typename T>
-void run_stress();
+void run_stress(int deviceId);
 
 template <typename T>
 void run_triad();
 
 void parseArguments(int argc, char *argv[]);
 
-void callBabel() {
+void callBabel(int deviceId) {
   //run_stress<float>();
-  run_stress<double>();
+  run_stress<double>(deviceId);
   //run_triad<float>();
   //run_triad<double>();
 }
 
 template <typename T>
-void run_stress()
+void run_stress(int index)
 {
   std::string   msg;
   std::streamsize ss = std::cout.precision();
+
+  deviceIndex = index;
+  num_times = numberIterations;
 
   if (!output_as_csv)
   {

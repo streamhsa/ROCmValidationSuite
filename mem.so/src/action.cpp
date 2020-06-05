@@ -46,6 +46,7 @@ using std::string;
 using std::vector;
 using std::map;
 using std::regex;
+unsigned int numberIterations = 0;
 
 std::string rvs_mem[]={
     "Test0 [Walking 1 bit]",
@@ -425,6 +426,7 @@ int mem_action::run(void) {
             " " + "Getting properties of memory test"; 
     rvs::lp::Log(msg, rvs::logtrace);
 
+
     // get the action name
     if (property_get(RVS_CONF_NAME_KEY, &action_name)) {
       rvs::lp::Err("Action name missing", MODULE_NAME_CAPS);
@@ -441,6 +443,7 @@ int mem_action::run(void) {
         return -1;
 
 
+    numberIterations =  num_iterations;
     return get_all_selected_gpus();
 }
 

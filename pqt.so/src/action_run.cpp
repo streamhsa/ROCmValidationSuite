@@ -58,20 +58,6 @@ using std::vector;
 
 
 
-/**
- * @brief computes the difference (in milliseconds) between 2 points in time
- * @param t_end second point in time
- * @param t_start first point in time
- * @return time difference in milliseconds
- */
-uint64_t pqt_action::time_diff(
-                std::chrono::time_point<std::chrono::system_clock> t_end,
-                std::chrono::time_point<std::chrono::system_clock> t_start) {
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-                            t_end - t_start);
-    return milliseconds.count();
-}
-
 
 /**
  * @brief Main action execution entry point. Implements test logic.

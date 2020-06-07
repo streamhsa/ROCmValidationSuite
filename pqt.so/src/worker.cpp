@@ -56,6 +56,22 @@ pqtworker::pqtworker() {
 pqtworker::~pqtworker() {}
 
 /**
+ * @brief computes the difference (in milliseconds) between 2 points in time
+ * @param t_end second point in time
+ * @param t_start first point in time
+ * @return time difference in milliseconds
+ */
+uint64_t time_diff(
+                std::chrono::time_point<std::chrono::system_clock> t_end,
+                std::chrono::time_point<std::chrono::system_clock> t_start) {
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            t_end - t_start);
+    return milliseconds.count();
+}
+
+
+
+/**
  * @brief Thread function
  *
  * Loops while brun == TRUE and performs polled monitoring avery 1msec.
@@ -82,7 +98,7 @@ void pqtworker::run() {
 
     uint64_t test_time = time_diff(pqt_end_time, pqt_start_time);
 
-    if(test_time >= property_duration) {
+    if(test_time >= pqt_duration) {
          break;
     }
 

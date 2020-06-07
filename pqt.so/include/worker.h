@@ -82,6 +82,10 @@ class pqtworker : public rvs::ThreadBase {
   //! Set list of test sizes
   void set_block_sizes(const std::vector<uint32_t>& val) { block_size = val; }
 
+  void set_duration(uint64_t duration) { pqt_duration = duration; }
+  uint64_t get_duration() { return pqt_duration; }
+  uint64_t pqt_duration;
+
  protected:
   virtual void run(void);
 

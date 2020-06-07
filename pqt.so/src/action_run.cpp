@@ -149,25 +149,14 @@ int pqt_action::run() {
       timer_running.start(property_log_interval);        // ticks continuously
     }
 
-    pqt_start_time = std::chrono::system_clock::now();
-
-    if (property_parallel)
+    do {
+      RVSTRACE_
+      if (property_parallel) {
         sts = run_parallel();
-    else {
-
-        while(brun) {
-             RVSTRACE_
-             sts = run_single();
-
-             pqt_end_time = std::chrono::system_clock::now();
-             uint64_t test_time = time_diff(pqt_end_time, pqt_start_time) ;
-             if(test_time >= property_duration) {
-                 pqt_action::do_final_average();
-                 break;
-             }
-             std::cout << "." << std::flush;
-          }
-    }
+      } else {
+        sts = run_single();
+      }
+    } while (brun);
 
     RVSTRACE_
     timer_running.stop();

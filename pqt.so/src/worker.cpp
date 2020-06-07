@@ -62,6 +62,8 @@ pqtworker::~pqtworker() {}
  *
  * */
 void pqtworker::run() {
+  std::chrono::time_point<std::chrono::system_clock> pqt_start_time;
+  std::chrono::time_point<std::chrono::system_clock> pqt_end_time;
   std::string msg;
 
   msg = "[" + action_name + "] pqt thread " + std::to_string(src_node) + " "
@@ -70,9 +72,19 @@ void pqtworker::run() {
 
   brun = true;
 
+  pqt_start_time = std::chrono::system_clock::now();
+
   while (brun) {
+
     do_transfer();
-    std::this_thread::yield();
+
+    pqt_end_time = std::chrono::system_clock::now();
+
+    uint64_t test_time = time_diff(pqt_end_time, pqt_start_time);
+
+    if(test_time >= property_duration) {
+         break;
+    }
 
     if (rvs::lp::Stopping()) {
       brun = false;

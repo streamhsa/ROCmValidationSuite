@@ -509,6 +509,7 @@ int pqt_action::create_threads() {
           p->set_stop_name(action_name);
           p->set_transfer_ix(transfer_ix);
           p->set_block_sizes(block_size);
+          p->worker(property_duration);
           test_array.push_back(p);
         }
 
